@@ -1,0 +1,79 @@
+const router = require("express").Router();
+const { User } = require("../../../models/user"); // Sequelize User model
+const { validateUser } = require("../../validators/userValidator"); // Joi validators
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { sendEmail } = require("../../../utils/mailer");
+const { uploadToCloudinary } = require("../../../utils/cloudnaryUploader");
+const { getRandomStringFromArray } = require("../../../utils/extractors");
+require("dotenv").config();
+
+router.post("/", async (req, res) => {
+  try {
+    // Validate user input
+    const { error } = validateUser(req.body);
+
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    // Check if email or phone already exists
+    const existingUser = await User.findOne({
+      where: { email: req.body.email },
+    });
+
+    const existingUserByPhone = await User.findOne({
+      where: { phone: req.body.phone },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: "That email is already in use." });
+    }
+
+    if (existingUserByPhone) {
+      return res
+        .status(400)
+        .json({ message: "That phone number is already in use." });
+    }
+
+    if (!req.body.image) {
+      return res.status(400).json({ message: "Profile image is required." });
+    }
+
+    // Upload image
+    const uploadResult = await uploadToCloudinary(
+      req.body.image,
+      `${req.body.phone}`
+    );
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+    // Send verification email first (can be reversed if preferred)
+    await sendEmail(req.body.email, {
+      type: "INITIAL_VERIFICATION",
+      message: "",
+    });
+
+    // Create user
+    const user = await User.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      phone: req.body.phone,
+      password: hashedPassword,
+      role: "NORMAL",
+      image: uploadResult.url,
+      isVerified: false,
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Validation code sent. Check your email." });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+});
+
+module.exports =  router ;
