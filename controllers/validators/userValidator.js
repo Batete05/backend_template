@@ -8,7 +8,8 @@ const validateUser = (data) => {
         email: Joi.string().email().required().label('Email'),
         phone: Joi.number().required().label('Phone Number'),
         password: passwordComplexity().required().label('Password'),
-        image: Joi.string().allow(null).label('Image')
+        image: Joi.string().allow(null).label('Image'),
+        // role:Joi.string().default("NORMAL").label("Role ")
     });
     return schema.validate(data);
 };

@@ -10,7 +10,7 @@ const validateEmployee = (data) => {
     phone: joi.number().required().label("Phone"),
     department: joi.string().required().label("Department"),
     position: joi.string().required().label("Position"),
-    laptopManufacturer: joi.string().required().label("Laptop Manufacture"),
+    laptopManufacture: joi.string().required().label("Laptop Manufacture"),
     model: joi.string().required().label("Model"),
     serialNumber: joi.string().required().label("Serial Number"),
   });

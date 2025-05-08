@@ -3,8 +3,6 @@ const { User } = require("../../../models/user"); // Sequelize User model
 const { validateUser } = require("../../validators/userValidator"); // Joi validators
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { sendEmail } = require("../../../utils/mailer");
-const { uploadToCloudinary } = require("../../../utils/cloudnaryUploader");
 const { getRandomStringFromArray } = require("../../../utils/extractors");
 require("dotenv").config();
 
@@ -73,7 +71,7 @@ router.post("/", async (req, res) => {
       expiresIn: "1h",
     });
 
-    return res.status(200).json({ token, message: "Success." });
+    return res.status(201).json({ token, message: "Success." });
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
