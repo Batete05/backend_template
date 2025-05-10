@@ -2,6 +2,8 @@ const router = require("express").Router();
 const { json } = require("sequelize");
 const { verifyToken } = require("../../../middlewares/verifyToken");
 const { Employee } = require("../../../models/employees");
+const { Op } = require("sequelize");
+
 const { validateEmployee } = require("../../validators/employeeValidation");
 require("dotenv").config();
 
@@ -70,7 +72,7 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/all", async (req, res) => {
   try {
     const findEmployee = await Employee.findAll();
     if (!findEmployee) {
@@ -82,7 +84,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.put("/update/:id",verifyToken, async (req, res) => {
+router.put("/update/:id", verifyToken, async (req, res) => {
   try {
     const userId = req.params.id;
     const updatedData = req.body;
@@ -106,49 +108,75 @@ router.put("/update/:id",verifyToken, async (req, res) => {
   }
 });
 
-router.delete('/delete/:id',verifyToken, async (req, res) => {
+router.delete("/delete/:id", verifyToken, async (req, res) => {
   try {
-      const employee = await Employee.findByPk(req.params.id);
-      if (!employee) {
-          return res.status(404).json({ message: 'Employee not found' });
-      }
-      await employee.destroy();
-      res.status(200).json({ message: 'Employee deleted successfully' });
+    const employee = await Employee.findByPk(req.params.id);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+    await employee.destroy();
+    res.status(200).json({ message: "Employee deleted successfully" });
   } catch (err) {
-      res.status(500).json({ message: 'Failed to delete employee Error: '+err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to delete employee Error: " + err.message });
   }
 });
 
 // READ all employees with pagination
-router.get('/pagination', verifyToken, async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
-      // Read query parameters for pagination
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 5;
-      const offset = (page - 1) * limit;
+    // Read query parameters for pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const offset = (page - 1) * limit;
 
-      const { count, rows: employees } = await Employee.findAndCountAll({
-          offset,
-          limit,
-          order: [
-              ['id', 'DESC'],
-              ['createdAt', 'DESC']
-          ],
-      });
-      // http://localhost:5000/v1/employee?page=2&limit=2
-      const totalPages = Math.ceil(count / limit);
+    const { count, rows: employees } = await Employee.findAndCountAll({
+      offset,
+      limit,
+      order: [
+        ["id", "DESC"],
+        ["createdAt", "DESC"],
+      ],
+    });
+    // http://localhost:5000/v1/employee?page=2&limit=2
+    const totalPages = Math.ceil(count / limit);
 
-      res.status(200).json({
-          employees,
-          pagination: {
-              totalItems: count,
-              totalPages,
-              currentPage: page,
-              perPage: limit,
-          }
-      });
+    res.status(200).json({
+      employees,
+      pagination: {
+        totalItems: count,
+        totalPages,
+        currentPage: page,
+        perPage: limit,
+      },
+    });
   } catch (err) {
-      res.status(500).json({ message: 'Failed to fetch employees', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch employees", error: err.message });
+  }
+});
+
+router.get("/search", async (req, res) => {
+  const searchKeyword = req.query.q;
+  if (!searchKeyword) {
+    return res.status(400).json({ message: "Search keyword is required" });
+  }
+  try {
+    const employees = await Employee.findAll({
+      where: {
+        [Op.or]: [
+          { firstName: { [Op.iLike]: `%${searchKeyword}%` } },
+          { lastName: { [Op.iLike]: `%${searchKeyword}%` } },
+          { position: { [Op.iLike]: `%${searchKeyword}%` } },
+          { department: { [Op.iLike]: `%${searchKeyword}%` } },
+        ],
+      },
+    });
+    return res.send({ employees });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
   }
 });
 
