@@ -35,9 +35,10 @@ app.use(
 // Route
 app.use("/v1/auth/net/login", loginWithInternetRoute);
 app.use("/v1/auth/login", loginWithoutInternetRoute),
-  app.use("/v1/auth/net/register", registerWithInternetRoute),
-  app.use("/v1/auth/register", registerWithoutInternetRoute);
+app.use("/v1/auth/net/register", registerWithInternetRoute),
+app.use("/v1/auth/register", registerWithoutInternetRoute);
 app.use("/v1/employee/", employeeRegistry);
+app.use("/v1/verify",require("./controllers/routes/auth/verification"))
 app.use("/v1/api/swagger", swaggerUi.serve, swaggerUi.setup(annotations));
 
 // Root Endpoint

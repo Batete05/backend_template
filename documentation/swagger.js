@@ -9,7 +9,7 @@ const annotations = {
     version: "1.0.0",
     description: "Backend APIs for Employee Management  in a Given Company",
     contact: {
-      name: "HRH",
+      name: "Batete",
       email: "bateteangenadette@gmail.com",
       url: "https://www.instagram.com/_b.a.t.e.t.e/",
     },

@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
+const { generateOneTimeCode } = require("./otpFunctionManager");
 require("dotenv").config();
-const { generateOneTimeCode } = require("../models/oneTimeCode");
+// const { generateOneTimeCode } = require("../models/one");
 
 // /*
 const transporter = nodemailer.createTransport({
@@ -9,8 +10,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: process.env.MAILER,
-    pass: process.env.MAILER_PASSWORD,
+    user: process.env.NODEMAILER_EMAIL,
+    pass: process.env.NODEMAILER_PASSWORD,
   },
 });
 // */
@@ -23,7 +24,7 @@ async function sendEmail(email, options) {
   if (type === "INITIAL_VERIFICATION") {
     verificationCode = await generateOneTimeCode(email);
     mailOptions = {
-      from: `Presence Eye <${process.env.MAILER}>`,
+      from: `Presence Eye <${process.env.NODEMAILER_EMAIL}>`,
       to: email,
       subject: "Presence Eye Verification Code",
       text: `Hello,\n\nThank you for signing up with Presence Eye! To complete your registration, please verify your email address using the code below:\n\nVerification Code: ${verificationCode}\n\nAlternatively, you can click the following link to verify your email:\nhttps://buu-backend.onrender.com/verify/email?email=${email}&code=${verificationCode}\n\nIf you did not sign up for this account, please ignore this email.\n\nBest regards,\nBYOSE Team`,
@@ -35,7 +36,7 @@ async function sendEmail(email, options) {
                 <p style="font-size: 24px; font-weight: bold; color: #4CAF50; text-align: center;">${verificationCode}</p>
                 <p>Alternatively, you can click the following link to verify your email:</p>
                 <p style="text-align: center;">
-                    <a href="${process.env.SERVER_URL}/verification/email?email=${email}&code=${verificationCode}" 
+                    <a href="${process.env.SERVER_URL}/v1/verify/email?email=${email}&code=${verificationCode}" 
                        style="background-color: #4CAF50; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px;">
                        Verify My Email
                     </a>
@@ -48,7 +49,7 @@ async function sendEmail(email, options) {
   } else if (type === "VERIFICATION_CODE") {
     verificationCode = await generateOneTimeCode(email);
     mailOptions = {
-      from: `Presence Eye <${process.env.MAILER}>`,
+      from: `Presence Eye <${process.env.NODEMAILER_EMAIL}>`,
       to: email,
       subject: "Re-verify Your Email Address",
       text: `Hello,\n\nWe noticed that you need to re-verify your email address for your Presence Eye account. Please use the code below to complete the process:\n\nVerification Code: ${verificationCode}\n\nIf you did not request this, please contact our support team immediately.\n\nBest regards,\nPresence Eye Team`,
@@ -65,7 +66,7 @@ async function sendEmail(email, options) {
     };
   } else if (type === "ALERT_PASSWORD") {
     mailOptions = {
-      from: `Presence Eye <${process.env.MAILER}>`,
+      from: `Presence Eye <${process.env.NODEMAILER_EMAIL}>`,
       to: email,
       subject: "Your Password Has Been Changed",
       text: "We wanted to let you know that the password for your account on Presence Eye has been successfully changed.",
@@ -81,7 +82,7 @@ async function sendEmail(email, options) {
     };
   } else if (type === "ALERT_MESSAGE") {
     mailOptions = {
-      from: `Presence Eye <${process.env.MAILER}>`,
+      from: `Presence Eye <${process.env.NODEMAILER_EMAIL}>`,
       to: email,
       subject: "ALERT MESSAGE FROM Presence Eye",
       text: message,
@@ -90,7 +91,7 @@ async function sendEmail(email, options) {
   } else if (type === "LOGIN_OTP") {
     verificationCode = await generateOneTimeCode(email);
     mailOptions = {
-      from: `Presence Eye <${process.env.MAILER}>`,
+      from: `Presence Eye <${process.env.NODEMAILER_EMAIL}>`,
       to: email,
       subject: "Presence Eye Login Verification Code",
       text: `Hello,\n\nWe received a request to log into your Presence Eye account. Use the verification code below to complete the process:\n\nVerification Code: ${verificationCode}\n\nIf you did not request this, please ignore this message or contact our support team immediately.\n\nBest regards,\nThe Presence Eye Team`,
@@ -108,7 +109,7 @@ async function sendEmail(email, options) {
   } else if (type === "LOGIN_PASSKEY_OTP") {
     verificationCode = await generateOneTimeCode(email);
     mailOptions = {
-      from: `Presence Eye <${process.env.MAILER}>`,
+      from: `Presence Eye <${process.env.NODEMAILER_EMAIL}>`,
       to: email,
       subject: "Presence Eye Login Verification Code",
       text: `Hello,\n\nWe received a request to log into your Presence Eye account with PassKey. Use the verification code below to complete the process:\n\nVerification Code: ${verificationCode}\n\nIf you did not request this, please ignore this message or contact our support team immediately.\n\nBest regards,\nThe Presence Eye Team`,

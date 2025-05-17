@@ -36,15 +36,27 @@ router.post("/", async (req, res) => {
         .json({ message: "That phone number is already in use." });
     }
 
-    if (!req.body.image) {
-      return res.status(400).json({ message: "Profile image is required." });
-    }
+    // if (!req.body.image) {
+    //   return res.status(400).json({ message: "Profile image is required." });
+    // }
 
     // Upload image
-    const uploadResult = await uploadToCloudinary(
-      req.body.image,
-      `${req.body.phone}`
-    );
+    // const uploadResult = await uploadToCloudinary(
+    //   req.body.image,
+    //   `${req.body.phone}`
+    // );
+
+    const profiles = [
+      "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740845112/byose%20org%20site/dagubrrhscapupfkinth.jpg",
+      "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740845112/byose%20org%20site/jirbrme6xggrkkhxfcxv.jpg",
+      "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740845111/byose%20org%20site/ftwrjvtebci0ifdzuzii.jpg",
+      "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740845111/byose%20org%20site/ezcugunruqofoob1x53f.jpg",
+      "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740845111/byose%20org%20site/ijnsvnimzb6z6szgjn5k.jpg",
+      "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740845111/byose%20org%20site/tsukx2j96rntzoej0cuv.jpg",
+      "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740845111/byose%20org%20site/rpu01aussyxzfkm93nu3.jpg",
+      "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740845111/byose%20org%20site/t11rgc2pcgujxvq5qstm.jpg",
+      "https://res.cloudinary.com/ddsojj7zo/image/upload/v1740845110/byose%20org%20site/exea7rofrhtsphx9on2f.jpg",
+    ];
 
     // Hash the password
     const salt = await bcrypt.genSalt(10);
@@ -64,7 +76,7 @@ router.post("/", async (req, res) => {
       phone: req.body.phone,
       password: hashedPassword,
       role: "NORMAL",
-      image: uploadResult.url,
+      image:getRandomStringFromArray(profiles), //uploadResult.url,
       isVerified: false,
     });
 

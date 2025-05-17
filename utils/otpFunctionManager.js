@@ -1,5 +1,5 @@
 const randomatic = require("randomatic");
-const OneTimeCode = require("../../models/oneTimeCode");
+const { OneTimeCode } = require("../models/oneTimeCode");
 
 function generateCode() {
   return randomatic("0", 5);

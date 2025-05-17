@@ -3,6 +3,8 @@ const { User } = require("../../../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { validateOnLogin } = require("../../validators/userValidator");
+const { sendEmail } = require("../../../utils/mailer");
+const { validateOneTimeCode } = require("../../../utils/otpFunctionManager");
 require("dotenv").config();
 
 router.post("/", async (req, res) => {
@@ -84,7 +86,7 @@ router.post("/otp", async (req, res) => {
 
     return res.status(201).json({ message: "success", token });
   } catch (err) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error "+err.message });
   }
 });
 
